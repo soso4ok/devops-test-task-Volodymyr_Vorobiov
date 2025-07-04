@@ -42,4 +42,6 @@ current_datetime=$(get_datetime)
 file_count=$(count_files)
 echo "$current_datetime"
 echo "$file_count"
-write_log
+
+
+write_log "$1"
