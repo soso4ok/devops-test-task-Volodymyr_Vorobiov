@@ -1,0 +1,100 @@
+name: Hello Script Workflow
+
+on:
+  push:
+    branches: [ main ]
+  
+  pull_request:
+    branches: [ main ]
+  
+  workflow_dispatch:
+    inputs:
+      log_filename:
+        description: 'log filename'
+        required: false
+        default: 'hello_log'
+        type: string
+
+jobs:
+  execute-hello-script:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Create logs directory
+      run: mkdir -p logs
+    
+    - name: Make hello.sh executable
+      run: chmod +x scripts/hello.sh
+    
+    - name: Execute hello.sh script
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.log_filename }}" ]; then
+          ./scripts/hello.sh "${{ github.event.inputs.log_filename }}"
+        else
+          ./scripts/hello.sh
+        fi
+
+    - name: Validate log file creation
+      run: |
+        # Recent file
+        LOG_FILE=$(ls -t logs/*.txt 2>/dev/null | head -n1)
+        
+        if [ -z "$LOG_FILE" ]; then
+          echo "ERROR: log file no found"
+          exit 1
+        fi
+        
+        echo "Found log file - $LOG_FILE"
+        echo "LOG_FILE=$LOG_FILE" >> $GITHUB_ENV
+        
+        # Check fi file exists and is not empty
+        if [ ! -s "$LOG_FILE" ]; then
+          echo "ERROR: Log file is empty or does not exist!"
+          exit 1
+        fi
+
+        echo "Log file created successfully"
+
+        
+    - name: Validate log file contents
+      run: |
+        LOG_FILE="${{ env.LOG_FILE }}"
+        echo "--- Log file contents ---"
+        cat "$LOG_FILE"
+        echo "--- End of log file ---"
+        
+        # Check for greeting message
+        if ! grep -q "Hello" "$LOG_FILE"; then
+          echo "ERROR: Greeting message not found in log file."
+          exit 1
+        fi
+        echo "Greeting message found"
+        
+        # Valid timestamp
+        if ! grep -E "[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}" "$LOG_FILE"; then
+          echo "ERROR: Valid timestamp not found in log file"
+          exit 1
+        fi
+        echo "Valid timestamp found"
+        
+        # Check for numeric value 
+        if ! grep -E "[0-9]+" "$LOG_FILE"; then
+          echo "ERROR: No numeric value found in log file."
+          exit 1
+        fi
+        echo "Numeric value found"
+        
+        echo "All validations passed successfully."
+
+    - name: Upload log file as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: hello-log-${{ github.run_number }}
+        path: "logs/*.txt"
+        retention-days: 30
+      if: always()  # Upload even fail
+    
+    
