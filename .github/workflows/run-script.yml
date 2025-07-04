@@ -40,7 +40,7 @@ jobs:
     - name: Validate log file creation
       run: |
         # Recent file
-        LOG_FILE=$(ls -t logs/*.txt 2>/dev/null | head -n1)
+        LOG_FILE=$(ls -t logs/*.txt 2>/dev/null | grep -v history.txt | head -n1)
         
         if [ -z "$LOG_FILE" ]; then
           echo "ERROR: log file no found"
