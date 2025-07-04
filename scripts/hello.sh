@@ -19,7 +19,7 @@ write_log() {
     greet
     get_datetime
     count_files
-  } > "../logs/log-$timestamp.txt"
+  } > "logs/log-$timestamp.txt"
 }
 
 greet
