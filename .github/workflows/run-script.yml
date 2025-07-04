@@ -22,6 +22,9 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
+    - name: Create logs directory
+      run: mkdir -p logs
     
     - name: Make hello.sh executable
       run: chmod +x scripts/hello.sh
