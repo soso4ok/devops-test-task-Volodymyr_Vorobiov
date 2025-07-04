@@ -41,8 +41,8 @@ The main script (`scripts/hello.sh`) generates log files with timestamps and sys
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/soso4ok/YOUR_REPO_NAME.git
-   cd YOUR_REPO_NAME
+   git clone https://github.com/soso4ok/devops-test-task-Volodymyr_Vorobiov
+   cd devops-test-task-Volodymyr_Vorobiov
    ```
 
 2. **Make the script executable:**
